@@ -242,9 +242,6 @@ struct UpdateLearningGoalView: View {
                 }
             }
 
-            Text(
-                "If you update now, your streak will start over."
-            )
         }
     }
 

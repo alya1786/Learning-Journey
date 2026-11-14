@@ -278,7 +278,17 @@ class LearningViewModel {
     }
 
     // MARK: - Streak
+
     func refreshStreak(at date: Date = Date()) {
+        // Close the displayed streak as soon as the goal is final.
+        if goalResult(at: date) != .inProgress {
+            if streak != 0 {
+                streak = 0
+                saveProgress()
+            }
+            return
+        }
+
         guard lastLogDate != nil else {
             streak = 0
             return
@@ -291,9 +301,10 @@ class LearningViewModel {
             }
         }
     }
-    
+
     func currentStreak(at date: Date = Date()) -> Int {
-        guard currentGoal != nil,
+        // A finished or failed goal has no active streak.
+        guard goalResult(at: date) == .inProgress,
               let lastLogDate else {
             return 0
         }

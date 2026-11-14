@@ -27,8 +27,11 @@ struct ActivityView: View {
                 Spacer()
 
                 // Calendar button
+
                 NavigationLink {
-                    ActivitiesView(dailyLogs: viewModel.dailyLogs)
+                    ActivitiesView(
+                        dailyLogs: viewModel.dailyLogs
+                    )
                 } label: {
                     Image(systemName: "calendar")
                         .font(.system(size: 18))
@@ -37,7 +40,8 @@ struct ActivityView: View {
                         .glassEffect(.regular, in: Circle())
                 }
 
-                // Update goal button
+                // Update Goal button
+
                 Button {
                     showUpdateGoal = true
                 } label: {
@@ -54,7 +58,10 @@ struct ActivityView: View {
 
             Text(
                 currentDate.formatted(
-                    .dateTime.weekday(.wide).day().month(.wide)
+                    .dateTime
+                        .weekday(.wide)
+                        .day()
+                        .month(.wide)
                 )
             )
             .font(.system(size: 16))
@@ -70,10 +77,11 @@ struct ActivityView: View {
 
             HStack(spacing: 12) {
 
+                // Learned / Streak
+
                 TimelineView(
                     .periodic(from: .now, by: 1)
                 ) { context in
-
                     ActivityStatCard(
                         icon: "flame.fill",
                         count: viewModel.currentStreak(
@@ -84,18 +92,19 @@ struct ActivityView: View {
                     )
                 }
 
+                // Freeze
+
                 TimelineView(
                     .periodic(from: .now, by: 1)
                 ) { context in
-
-                    let goalFailed =
+                    let isFinished =
                         viewModel.goalResult(
                             at: context.date
-                        ) == .notMet
+                        ) != .inProgress
 
                     ActivityStatCard(
                         icon: "snowflake",
-                        count: goalFailed
+                        count: isFinished
                             ? 0
                             : viewModel.frozenDays,
                         title: "Freezed",
@@ -112,9 +121,8 @@ struct ActivityView: View {
 
                 let liveDate = context.date
 
-                let liveResult = viewModel.goalResult(
-                    at: liveDate
-                )
+                let liveResult: LearningViewModel.GoalResult =
+                    viewModel.goalResult(at: liveDate)
 
                 let today = Calendar.current.startOfDay(
                     for: liveDate
@@ -160,6 +168,9 @@ struct ActivityView: View {
                 }
             }
         }
+
+        // MARK: - Layout
+
         .padding(.horizontal, 16)
         .padding(.top, 24)
         .background(Color.black)
@@ -197,8 +208,8 @@ struct ActivityView: View {
                 for: .NSCalendarDayChanged
             )
         ) { _ in
-
             currentDate = Date()
+            viewModel.refreshStreak()
         }
 
         .onReceive(
@@ -206,7 +217,6 @@ struct ActivityView: View {
                 for: UIApplication.willEnterForegroundNotification
             )
         ) { _ in
-
             currentDate = Date()
             viewModel.refreshStreak()
         }
