@@ -23,6 +23,21 @@ class LearningViewModel {
 
     private let streakDuration: TimeInterval = 32 * 60 * 60
 
+    // Disable persistence when running isolated tests
+    @ObservationIgnored
+    private let usesPersistence: Bool
+
+    private func hasStreakExpired(
+        at date: Date = Date()
+    ) -> Bool {
+        guard let lastLogDate else {
+            return false
+        }
+
+        return date.timeIntervalSince(lastLogDate)
+            >= streakDuration
+    }
+
     var canStart: Bool {
         !learningTitle
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -31,8 +46,11 @@ class LearningViewModel {
 
     // MARK: - Initialization
 
-    init() {
-        if let saved = LearningStorage.load() {
+    init(loadSavedData: Bool = true) {
+        usesPersistence = loadSavedData
+
+        if loadSavedData,
+           let saved = LearningStorage.load() {
             currentGoal = saved.goal
             learningTitle = saved.goal.title
             selectedDuration = saved.goal.duration
@@ -45,13 +63,16 @@ class LearningViewModel {
             lastLogDate = saved.lastLogDate
         }
 
-        refreshStreak()
+        if loadSavedData {
+            refreshStreak()
+        }
     }
 
     // MARK: - Persistence
 
     private func saveProgress() {
-        guard let currentGoal else { return }
+        guard usesPersistence,
+              let currentGoal else { return }
 
         let data = SavedLearningData(
             goal: currentGoal,
@@ -133,11 +154,13 @@ class LearningViewModel {
 
     // MARK: - Daily Logging
 
-    func logToday(as status: DayStatus) {
-        guard isGoalActive else { return }
+    func logToday(
+        as status: DayStatus,
+        at now: Date = Date()
+    ) {
+        guard isGoalActive(at: now) else { return }
         guard status != .notLogged else { return }
 
-        let now = Date()
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
 
@@ -148,17 +171,20 @@ class LearningViewModel {
 
         // Check freeze availability
         if status == .frozen {
-            guard canFreeze else { return }
+            guard canFreeze(at: now) else { return }
         }
 
-        // Reset streak at exactly 32 hours
+        // The first activity starts the 32-hour window.
+        // An expired streak cannot be restarted
+        // within the same goal.
         if let lastLogDate {
             let secondsPassed = now.timeIntervalSince(
                 lastLogDate
             )
 
-            if secondsPassed >= streakDuration {
-                streak = 0
+            guard secondsPassed >= 0,
+                  secondsPassed < streakDuration else {
+                return
             }
         } else {
             streak = 0
@@ -252,26 +278,20 @@ class LearningViewModel {
     }
 
     // MARK: - Streak
-
     func refreshStreak(at date: Date = Date()) {
-        guard let lastLogDate else {
+        guard lastLogDate != nil else {
             streak = 0
             return
         }
 
-        let secondsPassed = date.timeIntervalSince(
-            lastLogDate
-        )
-
-        // Expire immediately when 32 hours are reached
-        if secondsPassed >= streakDuration {
+        if hasStreakExpired(at: date) {
             if streak != 0 {
                 streak = 0
                 saveProgress()
             }
         }
     }
-
+    
     func currentStreak(at date: Date = Date()) -> Int {
         guard currentGoal != nil,
               let lastLogDate else {
@@ -338,32 +358,62 @@ class LearningViewModel {
                    loggedDay < end
         }.count
 
-        // Wait until the goal deadline
-        if today < end {
-            return .inProgress
+        // Once the deadline has passed,
+        // calculate the final result first.
+        // A completed goal must stay completed.
+        if today >= end {
+            return completedDays >= requiredDays
+                ? .completed
+                : .notMet
         }
 
-        if completedDays >= requiredDays {
-            return .completed
+        // Fail immediately if the streak expires
+        if hasStreakExpired(at: date) {
+            return .notMet
         }
 
-        return .notMet
+        return .inProgress
     }
 
     // MARK: - Goal Deadline
 
-    var isGoalActive: Bool {
+    private func isGoalActive(
+        at date: Date
+    ) -> Bool {
         guard let goal = currentGoal else {
             return false
         }
 
+        // Stop the goal if the streak expires
+        guard !hasStreakExpired(at: date) else {
+            return false
+        }
+
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let today = calendar.startOfDay(for: date)
         let endDay = calendar.startOfDay(
             for: goal.endDate
         )
 
-        return today < endDay
+        return today >= calendar.startOfDay(
+            for: goal.startDate
+        ) && today < endDay
+    }
+
+    var isGoalActive: Bool {
+        isGoalActive(at: Date())
+    }
+
+    private func canFreeze(
+        at date: Date
+    ) -> Bool {
+        let today = Calendar.current.startOfDay(
+            for: date
+        )
+
+        return isGoalActive(at: date) &&
+               currentGoalLogs[today] == nil &&
+               freezesRemaining > 0
     }
 
     // Kept for compatibility with existing views
