@@ -1,23 +1,33 @@
 
 import SwiftUI
 
+// MARK: - Daily Action Buttons
+
 struct DailyActionButtons: View {
 
+    // Today's activity.
     let status: DayStatus
+
+    // Freeze availability.
     let canFreeze: Bool
     let freezesUsed: Int
     let freezeLimit: Int
+
+    // Button actions.
     let onLearned: () -> Void
     let onFreeze: () -> Void
 
+    // Check if today is logged.
     private var isLogged: Bool {
         status != .notLogged
     }
 
+    // Check if Freeze can be used.
     private var canUseFreeze: Bool {
         !isLogged && canFreeze
     }
 
+    // Button colors.
     private let learnedColor = Color(
         red: 1,
         green: 0.54,
@@ -30,16 +40,21 @@ struct DailyActionButtons: View {
         blue: 0.94
     )
 
+    // MARK: - Main View
+
     var body: some View {
 
         VStack(spacing: 0) {
 
+            // MARK: - Learned Button
+
+            // Log today's learning.
             Button(action: onLearned) {
 
                 Text(
                     status == .learned
-                    ? "Logged as Learned"
-                    : "Log as Learned"
+                        ? "Logged as Learned"
+                        : "Log as Learned"
                 )
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(
@@ -60,11 +75,14 @@ struct DailyActionButtons: View {
             Spacer()
                 .frame(height: 48)
 
+            // MARK: - Freeze Button
+
+            // Freeze today's activity.
             Button(action: onFreeze) {
 
                 Text(
-                    status == .frozen || freezesUsed >= freezeLimit
-                        ? "Freezed for a day"
+                    status == .frozen
+                        ? "Frozen for a day"
                         : "Freeze for a day"
                 )
                 .font(.system(size: 16, weight: .medium))
@@ -83,6 +101,9 @@ struct DailyActionButtons: View {
             .buttonStyle(.plain)
             .disabled(!canUseFreeze)
 
+            // MARK: - Freeze Counter
+
+            // Show used freezes.
             Text(
                 "\(freezesUsed) out of \(freezeLimit) Freezes used"
             )
@@ -91,5 +112,6 @@ struct DailyActionButtons: View {
             .padding(.top, 12)
         }
         .frame(maxWidth: .infinity)
+        .sensoryFeedback(.success, trigger: status)
     }
 }

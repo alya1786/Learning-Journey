@@ -1,3 +1,4 @@
+
 //
 //  DayStatus.swift
 //  Learning Journey
@@ -6,10 +7,18 @@
 //
 
 import Foundation
-import Foundation
 
+// MARK: - Day Status
+
+// Activity status for each day.
 enum DayStatus: String, Codable {
+
+    // No activity recorded.
     case notLogged
+
+    // Learning completed.
     case learned
+
+    // Freeze used.
     case frozen
 }

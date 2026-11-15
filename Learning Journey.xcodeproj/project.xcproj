@@ -11,6 +11,8 @@
     ],
   },
   "files": [
+    { "kind": "folder", "path": "Test", "target-membership": [ "Learning Journey" ] },
+    { "kind": "folder", "path": "Storage", "target-membership": [ "Learning Journey" ] },
     { "kind": "folder", "path": "ViewModel", "target-membership": [ "Learning Journey" ] },
     { "kind": "folder", "path": "View", "target-membership": [ "Learning Journey" ] },
     { "kind": "folder", "path": "Models ", "target-membership": [ "Learning Journey" ] },
