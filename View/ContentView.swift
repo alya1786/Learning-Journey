@@ -18,6 +18,7 @@ struct ContentView: View {
                     ActivityView(viewModel: viewModel)
 
                 } else {
+                    
 
                     // MARK: - Onboarding
 
@@ -75,7 +76,7 @@ struct ContentView: View {
                             Text("I want to learn it in a")
                                 .font(.system(size: 16))
                                 .foregroundStyle(.white)
-
+                            
                             // Duration buttons.
                             HStack {
 
@@ -143,8 +144,15 @@ struct ContentView: View {
                     }
                     .padding(.horizontal, 16)
                 }
+                
             }
+     
         }
+#if DEBUG
+        .onAppear {
+            GoalResultTests.run()
+        }
+        #endif
     }
 }
 

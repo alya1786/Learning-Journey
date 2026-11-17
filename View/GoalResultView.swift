@@ -97,8 +97,8 @@ struct GoalResultView: View {
         result: .completed,
         onSetGoal: {}
     )
-    .background(.black)
-    .preferredColorScheme(.dark)
+ .background(.black)
+  .preferredColorScheme(.dark)
 }
 
 #Preview("Not Completed") {

@@ -338,6 +338,180 @@ enum GoalResultTests {
             ] == .frozen,
             "Freeze history must remain"
         )
+        
+        // MARK: - Logging at the 32-Hour Boundary
+
+        let boundaryStart = calendar.date(
+            from: DateComponents(
+                year: 2026,
+                month: 11,
+                day: 14,
+                hour: 20
+            )
+        )!
+
+        let boundaryDeadline = boundaryStart.addingTimeInterval(
+            32 * 60 * 60
+        )
+
+        // Test 1: Log one second before expiration.
+        let beforeModel = LearningViewModel(
+            loadSavedData: false
+        )
+
+        beforeModel.currentGoal = LearningGoal(
+            title: "Before Deadline Test",
+            duration: .Week,
+            startDate: boundaryStart
+        )
+
+        beforeModel.logToday(
+            as: .learned,
+            at: boundaryStart
+        )
+
+        let oneSecondBefore = boundaryDeadline.addingTimeInterval(-1)
+
+        beforeModel.logToday(
+            as: .learned,
+            at: oneSecondBefore
+        )
+
+        let beforeDay = calendar.startOfDay(
+            for: oneSecondBefore
+        )
+
+        assert(
+            beforeModel.currentGoalLogs[beforeDay] == .learned,
+            "Logging should be allowed one second before expiration"
+        )
+
+        assert(
+            beforeModel.lastLogDate == oneSecondBefore,
+            "Successful logging should renew the 32-hour window"
+        )
+
+        print("✅ Logging before deadline test passed!")
+
+        // Test 2: Try logging one second after expiration.
+        let afterModel = LearningViewModel(
+            loadSavedData: false
+        )
+
+        afterModel.currentGoal = LearningGoal(
+            title: "After Deadline Test",
+            duration: .Week,
+            startDate: boundaryStart
+        )
+
+        afterModel.logToday(
+            as: .learned,
+            at: boundaryStart
+        )
+
+        let oneSecondAfter = boundaryDeadline.addingTimeInterval(1)
+
+        afterModel.logToday(
+            as: .learned,
+            at: oneSecondAfter
+        )
+
+        let afterDay = calendar.startOfDay(
+            for: oneSecondAfter
+        )
+
+        assert(
+            afterModel.currentGoalLogs[afterDay] == nil,
+            "Logging must be rejected after expiration"
+        )
+
+        assert(
+            afterModel.lastLogDate == boundaryStart,
+            "Rejected logging must not renew the deadline"
+        )
+
+        print("✅ Logging after deadline test passed!")
+
+
+        // MARK: - Midnight Boundary Tests
+
+        let midnightModel = LearningViewModel(
+            loadSavedData: false
+        )
+
+        let midnightStart = calendar.date(
+            from: DateComponents(
+                year: 2026,
+                month: 11,
+                day: 14,
+                hour: 12
+            )
+        )!
+
+        midnightModel.currentGoal = LearningGoal(
+            title: "Midnight Test",
+            duration: .Week,
+            startDate: midnightStart
+        )
+
+        // Simulate seven completed days.
+        for day in 0..<7 {
+            let date = calendar.date(
+                byAdding: .day,
+                value: day,
+                to: calendar.startOfDay(for: midnightStart)
+            )!
+
+            midnightModel.currentGoalLogs[date] = .learned
+        }
+
+        // Midnight after the final goal day.
+        let finalMidnight = calendar.startOfDay(
+            for: midnightModel.currentGoal!.endDate
+        )
+
+        let oneSecondBeforeMidnight = finalMidnight
+            .addingTimeInterval(-1)
+
+        // Test 1: Goal stays active before midnight.
+        assert(
+            midnightModel.goalResult(
+                at: oneSecondBeforeMidnight
+            ) == .inProgress,
+            "Goal should remain active before final midnight"
+        )
+
+        print("✅ Before midnight test passed!")
+
+        // Test 2: Goal completes at exactly midnight.
+        assert(
+            midnightModel.goalResult(
+                at: finalMidnight
+            ) == .completed,
+            "Goal should complete at final midnight"
+        )
+
+        print("✅ At midnight test passed!")
+
+        // Test 3: Missing one day causes failure.
+        let missingDay = calendar.date(
+            byAdding: .day,
+            value: 3,
+            to: calendar.startOfDay(for: midnightStart)
+        )!
+
+        midnightModel.currentGoalLogs.removeValue(
+            forKey: missingDay
+        )
+
+        assert(
+            midnightModel.goalResult(
+                at: finalMidnight
+            ) == .notMet,
+            "Goal should fail at midnight if a day is missing"
+        )
+
+        print("✅ Midnight failure test passed!")
 
         print("✅ Freeze renewal test passed!")
         print("✅ All Goal Result tests passed!")

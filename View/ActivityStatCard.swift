@@ -98,5 +98,5 @@ struct ActivityStatCard: View {
     }
     .padding()
     .background(.black)
-    .preferredColorScheme(.dark)
+   .preferredColorScheme(.dark)
 }

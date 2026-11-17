@@ -30,7 +30,7 @@ struct DurationButton: View {
         // Duration selection button.
         Button(action: action) {
             Text(title)
-                .font(.system(size: 19, weight: .semibold))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(
                     isSelected ? .white : .gray
                 )

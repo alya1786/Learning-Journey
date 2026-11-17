@@ -1,4 +1,4 @@
-
+import Foundation
 import SwiftUI
 
 // MARK: - Activity View
@@ -116,9 +116,9 @@ struct ActivityView: View {
 
                 // Show this week's activity.
                 WeeklyCalendarView(
-                    dailyLogs: viewModel.dailyLogs
+                    dailyLogs: viewModel.dailyLogs,
+                    currentDate: currentDate
                 )
-
                 // MARK: - Activity Statistics
 
                 HStack(spacing: 12) {
@@ -193,7 +193,7 @@ struct ActivityView: View {
                 Color.black.ignoresSafeArea()
             )
             .foregroundStyle(.white)
-            .preferredColorScheme(.dark)
+           .preferredColorScheme(.dark)
             .toolbar(
                 .hidden,
                 for: .navigationBar
@@ -336,6 +336,6 @@ struct ActivityView: View {
         ActivityView(
             viewModel: LearningViewModel()
         )
-        .preferredColorScheme(.dark)
+      .preferredColorScheme(.dark)
     }
 }

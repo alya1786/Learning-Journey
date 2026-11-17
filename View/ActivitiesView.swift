@@ -119,7 +119,7 @@ struct ActivitiesView: View {
         )
 
         // Always use dark mode.
-        .preferredColorScheme(.dark)
+      .preferredColorScheme(.dark)
 
         // Hide the default navigation bar.
         .toolbar(

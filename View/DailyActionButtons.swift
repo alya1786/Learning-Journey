@@ -1,6 +1,7 @@
 
 import SwiftUI
 
+
 // MARK: - Daily Action Buttons
 
 struct DailyActionButtons: View {
@@ -58,7 +59,7 @@ struct DailyActionButtons: View {
                 )
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(
-                    isLogged ? Color(white: 0.38) : .white
+                    isLogged ? Color(white: 0.60) : .white
                 )
                 .frame(width: 272, height: 272)
                 .glassEffect(
@@ -66,8 +67,8 @@ struct DailyActionButtons: View {
                         isLogged ? .clear : learnedColor
                     ),
                     in: Circle()
-                )
-                .contentShape(Circle())
+                    
+                ).contentShape(Circle())
             }
             .buttonStyle(.plain)
             .disabled(isLogged)
@@ -87,7 +88,7 @@ struct DailyActionButtons: View {
                 )
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(
-                    canUseFreeze ? .white : Color(white: 0.38)
+                    canUseFreeze ? .white : Color(white: 0.60)
                 )
                 .frame(width: 272, height: 46)
                 .glassEffect(

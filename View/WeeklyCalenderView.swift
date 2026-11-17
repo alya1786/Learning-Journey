@@ -8,14 +8,14 @@ struct WeeklyCalendarView: View {
     // Saved daily activities.
     let dailyLogs: [Date: DayStatus]
 
+    // Current date provided by ActivityView.
+    let currentDate: Date
+
     // Calendar settings.
     private let calendar = Calendar.current
 
     // MARK: - Day Colors
 
-   
-   
-    
     // Get the circle color.
     private func dayColor(
         for date: Date,
@@ -58,7 +58,7 @@ struct WeeklyCalendarView: View {
             return .white
         }
     }
-    
+
     // MARK: - Week Dates
 
     // Get the current week's dates.
@@ -94,68 +94,60 @@ struct WeeklyCalendarView: View {
 
     var body: some View {
 
-        // Update the calendar when the date changes.
-        TimelineView(
-            .periodic(from: .now, by: 60)
-        ) { context in
+        HStack(spacing: 0) {
 
-            let today = context.date
+            // Show each day of the week.
+            ForEach(
+                weekDates(for: currentDate),
+                id: \.self
+            ) { date in
 
-            HStack(spacing: 0) {
+                VStack(spacing: 12) {
 
-                // Show each day of the week.
-                ForEach(
-                    weekDates(for: today),
-                    id: \.self
-                ) { date in
-
-                    VStack(spacing: 12) {
-
-                        // Weekday letter.
-                        Text(
-                            date.formatted(
-                                .dateTime.weekday(.narrow)
-                            )
+                    // Weekday letter.
+                    Text(
+                        date.formatted(
+                            .dateTime.weekday(.narrow)
                         )
-                        .font(
-                            .system(
-                                size: 12,
-                                weight: .medium
-                            )
+                    )
+                    .font(
+                        .system(
+                            size: 12,
+                            weight: .medium
                         )
-                        .foregroundStyle(.white)
+                    )
+                    .foregroundStyle(.white)
 
-                        // Day number.
-                        Text(
-                            "\(calendar.component(.day, from: date))"
+                    // Day number.
+                    Text(
+                        "\(calendar.component(.day, from: date))"
+                    )
+                    .font(
+                        .system(
+                            size: 20,
+                            weight: .medium
                         )
-                        .font(
-                            .system(
-                                size: 20,
-                                weight: .medium
-                            )
+                    )
+                    .foregroundStyle(
+                        numberColor(
+                            for: date,
+                            today: currentDate
                         )
-                        .foregroundStyle(
-                            numberColor(
-                                for: date,
-                                today: today
-                            )
-                        )
-                        .frame(width: 43, height: 43)
+                    )
+                    .frame(width: 43, height: 43)
 
-                        // Activity circle.
-                        .background {
-                            Circle()
-                                .fill(
-                                    dayColor(
-                                        for: date,
-                                        today: today
-                                    )
+                    // Activity circle.
+                    .background {
+                        Circle()
+                            .fill(
+                                dayColor(
+                                    for: date,
+                                    today: currentDate
                                 )
-                        }
+                            )
                     }
-                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -165,9 +157,10 @@ struct WeeklyCalendarView: View {
 
 #Preview {
     WeeklyCalendarView(
-        dailyLogs: [:]
+        dailyLogs: [:],
+        currentDate: Date()
     )
     .padding()
     .background(.black)
-    .preferredColorScheme(.dark)
+   .preferredColorScheme(.dark)
 }

@@ -117,9 +117,7 @@ struct UpdateLearningGoalView: View {
                         .foregroundStyle(.white)
                         .frame(width: 40, height: 40)
                         .background(
-                            canSave && (isNewGoal || hasChanges)
-                                ? Color.orange
-                                : Color.gray,
+                            Color.orange,
                             in: Circle()
                         )
                 }
@@ -132,15 +130,15 @@ struct UpdateLearningGoalView: View {
             VStack(alignment: .leading, spacing: 10) {
 
                 Text("I want to learn")
-                    .font(.system(size: 14))
+                    .font(.system(size: 16))
                     .foregroundStyle(.white)
 
                 // Goal name input.
                 TextField(
-                    "What do you want to learn?",
+                    "Swift",
                     text: $newTitle
                 )
-                .font(.system(size: 16))
+                .font(.system(size: 17))
                 .foregroundStyle(.white)
                 .tint(.orange)
                 .padding(.vertical, 12)
@@ -155,7 +153,7 @@ struct UpdateLearningGoalView: View {
             VStack(alignment: .leading, spacing: 12) {
 
                 Text("I want to learn it in a")
-                    .font(.system(size: 14))
+                    .font(.system(size: 16))
                     .foregroundStyle(.white)
 
                 // Week, Month, and Year buttons.
@@ -191,95 +189,28 @@ struct UpdateLearningGoalView: View {
         .presentationSizing(.page)
         .toolbar(.hidden, for: .navigationBar)
 
+        
         // MARK: - Update Confirmation
+        .tint(.orange)
+       .alert("Update goal", isPresented: $showConfirmation) {
 
-        .overlay {
-            if showConfirmation {
-                ZStack {
+           Button("Dismiss", role: .cancel) {
+               // Keep the current goal.
+           }
 
-                    // Dim the background.
-                    Color.black.opacity(0.55)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            showConfirmation = false
-                        }
+           Button("Update") {
+               viewModel.updateGoal(
+                   title: newTitle,
+                   duration: newDuration
+               )
+               dismiss()
+                
+           }
+           .keyboardShortcut(.defaultAction)
+         
+       } message: {
+           Text("If you update now, your streak will start over.")
+       }
 
-                    VStack(alignment: .leading, spacing: 16) {
-
-                        // Confirmation title.
-                        Text("Update goal")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(.white)
-
-                        // Reset warning.
-                        Text("If you update now, your streak will start over.")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.gray)
-                            .fixedSize(
-                                horizontal: false,
-                                vertical: true
-                            )
-
-                        HStack(spacing: 12) {
-
-                            // Cancel update.
-                            Button {
-                                showConfirmation = false
-                            } label: {
-                                Text("Dismiss")
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 44)
-                                    .background(
-                                        Color(white: 0.22),
-                                        in: Capsule()
-                                    )
-                            }
-
-                            // Confirm update.
-                            Button {
-                                showConfirmation = false
-
-                                viewModel.updateGoal(
-                                    title: newTitle,
-                                    duration: newDuration
-                                )
-
-                                dismiss()
-                            } label: {
-                                Text("Update")
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 44)
-                                    .background(
-                                        Color.orange,
-                                        in: Capsule()
-                                    )
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(20)
-                    .frame(maxWidth: 310)
-                    .background(
-                        RoundedRectangle(cornerRadius: 28)
-                            .fill(Color(white: 0.11))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 28)
-                                    .strokeBorder(
-                                        Color.white.opacity(0.18),
-                                        lineWidth: 1
-                                    )
-                            }
-                    )
-                    .shadow(
-                        color: .black.opacity(0.4),
-                        radius: 20
-                    )
-                }
-            }
-        }
     }
 }
