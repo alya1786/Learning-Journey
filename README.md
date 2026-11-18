@@ -27,3 +27,17 @@ Learning Journey is an iOS app designed to help users stay consistent with their
 ## Project Information
 
 Developed as an individual coding challenge at the Apple Developer Academy.
+## App Screenshots
+
+| Onboarding | Activity | Activity Logged |
+|:---:|:---:|:---:|
+| <img src="Screenshots/onboarding.png" width="220"> | <img src="Screenshots/activity.png" width="220"> | <img src="Screenshots/activity-logged.png" width="220"> |
+
+| Freeze Day | Calendar | Edit Goal |
+|:---:|:---:|:---:|
+| <img src="Screenshots/activity-frozen.png" width="220"> | <img src="Screenshots/calendar.png" width="220"> | <img src="Screenshots/edit-goal.png" width="220"> |
+
+| Update Confirmation | Goal Completed | Goal Not Met |
+|:---:|:---:|:---:|
+| <img src="Screenshots/update-dialog.png" width="220"> | <img src="Screenshots/goal-completed.png" width="220"> | <img src="Screenshots/goal-failed.png" width="220"> |
+ڑ
